@@ -34,14 +34,22 @@ def readThreads(subreddit, cur):
 		
 		# Get the thread info
 		threadId = t['data']['id']
+		sub = t['data']['subreddit']
 		title = t['data']['title']
+		self = t['data']['selftext']
 		permalink = t['data']['permalink']
 		score = t['data']['score']
 		created = t['data']['created_utc']
+		url = ""
+		author = t['data']['author']
+		
+		if 'url' in i['data']:
+			url = i['data']['url']
 		
 		# Save it to the database. Duplicate threads will be ignored due to the UNIQUE KEY constraint
 		try:
-			cur.execute("""INSERT INTO threads (id_thread, id_sub, title, url, score, created) values (%s, 1, %s, %s, %s, %s)""", (threadId, title, permalink, int(score), created))
+			created = datetime.datetime.fromtimestamp(created).strftime('%Y-%m-%d %H:%M:%S')
+			cur.execute("""INSERT INTO threads (id_thread, sub, author, title, self, url, permalink, score, created) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", (threadId, sub, author, title, self, url, permalink, int(score), created))
 			newThreads += 1
 			print "New thread: " + title
 		except pymysql.err.IntegrityError as e:
@@ -66,6 +74,7 @@ def readComments(obj, threadId, threadUrl, cur):
 
 		# Basic info, present both in Title and Comment
 		commentId = i['data']['id']
+		anthor = i['data']['author']
 		content = ""
 		url = ""
 		score = 0
@@ -93,7 +102,8 @@ def readComments(obj, threadId, threadUrl, cur):
 
 		# Save!
 		try:
-			cur.execute("""INSERT INTO comments (id_comment, id_thread, comment, url, score, created) values (%s, %s, %s, %s, %s, %s)""", (commentId, threadId, content, url, int(score), created))
+			created = datetime.datetime.fromtimestamp(created).strftime('%Y-%m-%d %H:%M:%S')
+			cur.execute("""INSERT INTO comments (id_comment, id_thread, author, comment, url, score, created) values (%s, %s, %s, %s, %s, %s)""", (commentId, threadId, author, content, url, int(score), created))
 			newComments += 1
 		except pymysql.err.IntegrityError as e:
 			existingComments += 1
@@ -135,7 +145,7 @@ def requestJson(url, delay):
 
 # Url, header and request delay
 # If we don't set an unique User Agent, Reddit will limit our requests per hour and eventually block them
-userAgent = ""
+userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36"
 if userAgent == "":
 	print
 	print "Error: you need to set an User Agent inside this script"
@@ -154,7 +164,8 @@ if len(sys.argv) == 2:
 		print "Reading comments"
 	else:
 		subreddit = sys.argv[1]
-		subredditUrl = baseUrl + subreddit + "/new/.json"
+		sort = sys.argv[2]
+		subredditUrl = baseUrl + subreddit + "/" + sort + "/.json"
 		shouldReadComments = True
 		delay = 30
 		print "Reading threads from " + subredditUrl
@@ -166,7 +177,7 @@ print "Press ctrl+c to stop"
 print
 
 # Database connection
-conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='', db='reddit', charset='utf8')
+conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='', db='reddit', charset='utf8mb4')
 cur = conn.cursor()
 
 # Start! -----------------------------------------
@@ -195,7 +206,7 @@ while True:
 	if not shouldReadComments:
 	
 		# Get all the threads urls
-		cur.execute("SELECT * FROM threads")
+		cur.execute("SELECT * FROM threads ORDER BY created DESC")
 		threads = dict()
 		for row in cur.fetchall():
 			threads[row[0]] = row[4]
