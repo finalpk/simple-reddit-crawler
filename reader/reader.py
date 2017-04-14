@@ -43,8 +43,8 @@ def readThreads(subreddit, cur):
 		url = ""
 		author = t['data']['author']
 		
-		if 'url' in i['data']:
-			url = i['data']['url']
+		if 'url' in t['data']:
+			url = t['data']['url']
 		
 		# Save it to the database. Duplicate threads will be ignored due to the UNIQUE KEY constraint
 		try:
@@ -169,7 +169,7 @@ if len(sys.argv) == 2:
 		delay = 30
 		print "Reading threads from " + subredditUrl
 elif len(sys.argv) == 3:
-		if sys.argv[1] == "--get-comments":
+	if sys.argv[1] == "--get-comments":
 		shouldReadThreads = True
 		delay = 2
 		print "Reading comments"
