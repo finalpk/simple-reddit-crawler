@@ -74,7 +74,7 @@ def readComments(obj, threadId, threadUrl, cur):
 
 		# Basic info, present both in Title and Comment
 		commentId = i['data']['id']
-		author = i['data']['author']
+		author = ""
 		content = ""
 		url = ""
 		score = 0
@@ -86,7 +86,7 @@ def readComments(obj, threadId, threadUrl, cur):
 
 		# Is it a comment?
 		if 'body' in i['data']:
-
+			author = i['data']['author']
 			url = threadUrl + commentId
 			content = i['data']['body']
 			ups = int(i['data']['ups'])
