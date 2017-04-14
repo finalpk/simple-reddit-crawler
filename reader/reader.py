@@ -164,6 +164,17 @@ if len(sys.argv) == 2:
 		print "Reading comments"
 	else:
 		subreddit = sys.argv[1]
+		subredditUrl = baseUrl + subreddit + "/new/.json"
+		shouldReadComments = True
+		delay = 30
+		print "Reading threads from " + subredditUrl
+elif len(sys.argv) == 3:
+		if sys.argv[1] == "--get-comments":
+		shouldReadThreads = True
+		delay = 2
+		print "Reading comments"
+	else:
+		subreddit = sys.argv[1]
 		sort = sys.argv[2]
 		subredditUrl = baseUrl + subreddit + "/" + sort + "/.json"
 		shouldReadComments = True
