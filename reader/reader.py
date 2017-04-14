@@ -103,7 +103,7 @@ def readComments(obj, threadId, threadUrl, cur):
 		# Save!
 		try:
 			created = datetime.datetime.fromtimestamp(created).strftime('%Y-%m-%d %H:%M:%S')
-			cur.execute("""INSERT INTO comments (id_comment, id_thread, author, comment, url, score, created) values (%s, %s, %s, %s, %s, %s)""", (commentId, threadId, author, content, url, int(score), created))
+			cur.execute("""INSERT INTO comments (id_comment, id_thread, author, comment, url, score, created) values (%s, %s, %s, %s, %s, %s, %s)""", (commentId, threadId, author, content, url, int(score), created))
 			newComments += 1
 		except pymysql.err.IntegrityError as e:
 			existingComments += 1
@@ -220,7 +220,7 @@ while True:
 		cur.execute("SELECT * FROM threads ORDER BY created DESC")
 		threads = dict()
 		for row in cur.fetchall():
-			threads[row[0]] = row[4]
+			threads[row[0]] = row[7]
 
 		# Read them all!
 		for k, v in threads.iteritems():
