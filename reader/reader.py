@@ -74,7 +74,7 @@ def readComments(obj, threadId, threadUrl, cur):
 
 		# Basic info, present both in Title and Comment
 		commentId = i['data']['id']
-		anthor = i['data']['author']
+		author = i['data']['author']
 		content = ""
 		url = ""
 		score = 0
